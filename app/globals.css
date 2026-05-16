@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.login-bg {
+  background-color: #f5f4f1;
+  background-image: radial-gradient(#dddbd6 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+}
+
+.dark .login-bg {
+  background-color: #0e0e0d;
+  background-image: radial-gradient(#232320 1.5px, transparent 1.5px);
+}

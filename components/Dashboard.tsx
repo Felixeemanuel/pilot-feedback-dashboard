@@ -86,7 +86,7 @@ export default function Dashboard({
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-base font-semibold text-gray-900">Pilot Feedback Dashboard</h1>
-            <p className="text-xs text-gray-400 mt-0.5">After-school care software · Lgr22</p>
+            <p className="text-xs text-gray-400 mt-0.5">After-school care software</p>
           </div>
           <div className="flex items-center gap-2">
             <button

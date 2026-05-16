@@ -39,7 +39,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Pilot Feedback</h1>
-          <p className="text-sm text-gray-500 mt-1">After-school care software · Lgr22</p>
+          <p className="text-sm text-gray-500 mt-1">After-school care software</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

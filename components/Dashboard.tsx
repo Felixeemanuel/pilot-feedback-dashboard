@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { FeedbackItem, Tester, Section } from '@/lib/db'
 import AddFeedbackModal from './AddFeedbackModal'
 import ManageTestersModal from './ManageTestersModal'
+import ThemeToggle from './ThemeToggle'
 
 const SECTIONS: Section[] = ['UX', 'Content', 'Performance', 'Bugs']
 
@@ -80,13 +81,13 @@ export default function Dashboard({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-base font-semibold text-gray-900">Pilot Feedback Dashboard</h1>
-            <p className="text-xs text-gray-400 mt-0.5">After-school care software</p>
+            <h1 className="text-base font-semibold text-gray-900 dark:text-white">Pilot Feedback Dashboard</h1>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">After-school care software</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -97,13 +98,14 @@ export default function Dashboard({
             </button>
             <button
               onClick={() => setShowTestersModal(true)}
-              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+              className="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Testers ({testers.length})
             </button>
+            <ThemeToggle />
             <button
               onClick={logout}
-              className="border border-gray-300 text-gray-500 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+              className="border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 px-3 py-2 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Logout
             </button>
@@ -112,7 +114,7 @@ export default function Dashboard({
       </header>
 
       {/* Section tabs */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-6 flex gap-0">
           {SECTIONS.map(section => {
             const count = feedback.filter(f => f.section === section).length
@@ -122,16 +124,16 @@ export default function Dashboard({
                 onClick={() => setActiveSection(section)}
                 className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
                   activeSection === section
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-500'
                 }`}
               >
                 {section}
                 {count > 0 && (
                   <span className={`text-xs px-1.5 py-0.5 rounded-full font-normal ${
                     activeSection === section
-                      ? 'bg-blue-100 text-blue-600'
-                      : 'bg-gray-100 text-gray-500'
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                   }`}>
                     {count}
                   </span>
@@ -148,16 +150,16 @@ export default function Dashboard({
           {/* Positive column */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <span className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xs font-bold">✓</span>
-              <h2 className="font-medium text-gray-900">Positive</h2>
-              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+              <span className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 text-xs font-bold">✓</span>
+              <h2 className="font-medium text-gray-900 dark:text-white">Positive</h2>
+              <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full font-medium">
                 {positive.length}
               </span>
             </div>
             <div className="space-y-3">
               {positive.length === 0 ? (
-                <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center">
-                  <p className="text-sm text-gray-400">No positive feedback yet</p>
+                <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center">
+                  <p className="text-sm text-gray-400 dark:text-gray-500">No positive feedback yet</p>
                 </div>
               ) : (
                 positive.map(item => (
@@ -175,21 +177,21 @@ export default function Dashboard({
           {/* Negative column */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <span className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center text-red-600 text-xs font-bold">✕</span>
-              <h2 className="font-medium text-gray-900">Negative</h2>
-              <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">
+              <span className="w-5 h-5 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center text-red-600 dark:text-red-400 text-xs font-bold">✕</span>
+              <h2 className="font-medium text-gray-900 dark:text-white">Negative</h2>
+              <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full font-medium">
                 {negative.length}
               </span>
               {negative.some(f => f.fixed) && (
-                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full">
                   {negative.filter(f => f.fixed).length} fixed
                 </span>
               )}
             </div>
             <div className="space-y-3">
               {negative.length === 0 ? (
-                <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center">
-                  <p className="text-sm text-gray-400">No negative feedback yet</p>
+                <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center">
+                  <p className="text-sm text-gray-400 dark:text-gray-500">No negative feedback yet</p>
                 </div>
               ) : (
                 negative.map(item => (
@@ -252,21 +254,21 @@ function FeedbackCard({
     <div
       className={`rounded-xl border p-4 transition-all ${
         item.fixed
-          ? 'bg-gray-50 border-gray-200'
+          ? 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600'
           : isPositive
-          ? 'bg-green-50 border-green-200'
-          : 'bg-red-50 border-red-200'
+          ? 'bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-900'
+          : 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-900'
       }`}
     >
-      <p className={`text-sm text-gray-800 mb-3 leading-relaxed ${item.fixed ? 'line-through text-gray-400' : ''}`}>
+      <p className={`text-sm mb-3 leading-relaxed ${item.fixed ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-gray-100'}`}>
         {item.text}
       </p>
       <div className="flex items-end justify-between gap-2">
         <div>
-          <p className="text-xs font-medium text-gray-700 leading-none">
+          <p className="text-xs font-medium text-gray-700 dark:text-gray-300 leading-none">
             {tester?.name ?? 'Unknown tester'}
           </p>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
             {tester?.org ?? ''}
             {tester?.org ? ' · ' : ''}
             {date}
@@ -278,8 +280,8 @@ function FeedbackCard({
               onClick={onToggleFixed}
               className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-colors ${
                 item.fixed
-                  ? 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                  : 'bg-white text-green-700 border border-green-300 hover:bg-green-50'
+                  ? 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500'
+                  : 'bg-white dark:bg-gray-800 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-700/50 hover:bg-green-50 dark:hover:bg-gray-700'
               }`}
             >
               {item.fixed ? 'Unfix' : '✓ Fixed'}
@@ -287,7 +289,7 @@ function FeedbackCard({
           )}
           <button
             onClick={onDelete}
-            className="text-xs px-2.5 py-1 rounded-lg bg-white text-red-500 border border-red-200 hover:bg-red-50 transition-colors font-medium"
+            className="text-xs px-2.5 py-1 rounded-lg bg-white dark:bg-gray-800 text-red-500 dark:text-red-400 border border-red-200 dark:border-red-800/50 hover:bg-red-50 dark:hover:bg-gray-700 transition-colors font-medium"
           >
             Delete
           </button>

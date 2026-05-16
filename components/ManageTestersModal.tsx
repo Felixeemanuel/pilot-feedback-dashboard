@@ -40,10 +40,10 @@ export default function ManageTestersModal({
       className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
       onClick={e => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        <div className="px-6 pt-6 pb-5 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-gray-900">Manage Testers</h2>
-          <p className="text-xs text-gray-400 mt-0.5">Add or remove pilot-test participants</p>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md">
+        <div className="px-6 pt-6 pb-5 border-b border-gray-100 dark:border-gray-700">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">Manage Testers</h2>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Add or remove pilot-test participants</p>
         </div>
 
         <div className="px-6 py-5">
@@ -51,24 +51,24 @@ export default function ManageTestersModal({
           <form onSubmit={handleAdd} className="mb-5">
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5">Name</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5">Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="Anna Svensson"
                   autoFocus
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1.5">School / Org</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1.5">School / Org</label>
                 <input
                   type="text"
                   value={org}
                   onChange={e => setOrg(e.target.value)}
                   placeholder="Solens Fritidshem"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400"
                 />
               </div>
             </div>
@@ -84,21 +84,21 @@ export default function ManageTestersModal({
           {/* Tester list */}
           <div className="space-y-2 max-h-60 overflow-y-auto -mx-1 px-1">
             {testers.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-4 italic">No testers yet.</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-4 italic">No testers yet.</p>
             ) : (
               testers.map(t => (
                 <div
                   key={t.id}
-                  className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3"
+                  className="flex items-center justify-between bg-gray-50 dark:bg-gray-700 rounded-xl px-4 py-3"
                 >
                   <div>
-                    <p className="text-sm font-medium text-gray-800">{t.name}</p>
-                    <p className="text-xs text-gray-500">{t.org}</p>
+                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{t.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t.org}</p>
                   </div>
                   <button
                     onClick={() => handleRemove(t.id)}
                     disabled={removing === t.id}
-                    className="text-xs text-red-500 hover:text-red-700 font-medium disabled:opacity-40 ml-4 shrink-0"
+                    className="text-xs text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium disabled:opacity-40 ml-4 shrink-0"
                   >
                     {removing === t.id ? 'Removing...' : 'Remove'}
                   </button>
@@ -111,7 +111,7 @@ export default function ManageTestersModal({
         <div className="px-6 pb-6">
           <button
             onClick={onClose}
-            className="w-full border border-gray-300 text-gray-700 rounded-xl py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl py-2.5 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             Done
           </button>

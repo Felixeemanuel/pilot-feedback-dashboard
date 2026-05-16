@@ -1,0 +1,20 @@
+{
+  "testers": [
+    {
+      "id": "5c5b37f5-2d8a-46d7-88ca-010edc57e343",
+      "name": "Nicke",
+      "org": "Hägerstensåsens skola"
+    }
+  ],
+  "feedback": [
+    {
+      "id": "8b26bd76-d456-47d0-90e2-a067b3c73043",
+      "section": "Content",
+      "type": "negative",
+      "text": "För mycket plotter på sidan",
+      "testerId": "5c5b37f5-2d8a-46d7-88ca-010edc57e343",
+      "timestamp": "2026-05-16T10:14:03.699Z",
+      "fixed": true
+    }
+  ]
+}

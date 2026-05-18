@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server'
-import { readDB, writeDB } from '@/lib/db'
+import { getIdeas, insertIdea, toggleIdeaDone, deleteIdea } from '@/lib/db'
 import { randomUUID } from 'crypto'
 
 export async function GET() {
-  const db = readDB()
-  return NextResponse.json(db.ideas)
+  const ideas = await getIdeas()
+  return NextResponse.json(ideas)
 }
 
 export async function POST(request: Request) {
   const body = await request.json()
-  const db = readDB()
 
   const item = {
     id: randomUUID(),
@@ -19,29 +18,20 @@ export async function POST(request: Request) {
     done: false,
   }
 
-  db.ideas.push(item)
-  writeDB(db)
+  await insertIdea(item)
   return NextResponse.json(item, { status: 201 })
 }
 
 export async function PATCH(request: Request) {
   const { id } = await request.json()
-  const db = readDB()
-
-  const item = db.ideas.find(i => i.id === id)
-  if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-
-  item.done = !item.done
-  writeDB(db)
-  return NextResponse.json(item)
+  const updated = await toggleIdeaDone(id)
+  if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  return NextResponse.json(updated)
 }
 
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url)
-  const id = searchParams.get('id')
-  const db = readDB()
-
-  db.ideas = db.ideas.filter(i => i.id !== id)
-  writeDB(db)
+  const id = searchParams.get('id')!
+  await deleteIdea(id)
   return NextResponse.json({ ok: true })
 }

@@ -5,5 +5,5 @@ export const dynamic = 'force-dynamic'
 
 export default function DashboardPage() {
   const db = readDB()
-  return <Dashboard initialFeedback={db.feedback} initialTesters={db.testers} />
+  return <Dashboard initialFeedback={db.feedback} initialTesters={db.testers} initialIdeas={db.ideas} />
 }

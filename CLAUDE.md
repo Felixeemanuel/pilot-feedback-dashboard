@@ -46,6 +46,7 @@ middleware.ts           # Protects /dashboard/* and /api/feedback, /api/testers
 Tester:       { id, name, org }
 FeedbackItem: { id, section: 'UX'|'Content'|'Performance'|'Bugs',
                 type: 'positive'|'negative', text, testerId, timestamp, fixed }
+IdeaItem:     { id, text, testerId, timestamp, done }
 ```
 
 ## Environment Variables

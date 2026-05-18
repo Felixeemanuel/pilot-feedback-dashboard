@@ -2,28 +2,35 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { FeedbackItem, Tester, Section } from '@/lib/db'
+import type { FeedbackItem, IdeaItem, Tester, Section } from '@/lib/db'
 import AddFeedbackModal from './AddFeedbackModal'
+import AddIdeaModal from './AddIdeaModal'
 import ManageTestersModal from './ManageTestersModal'
 import ThemeToggle from './ThemeToggle'
 
 const SECTIONS: Section[] = ['UX', 'Content', 'Performance', 'Bugs']
+type Tab = Section | 'Ideas'
 
 export default function Dashboard({
   initialFeedback,
   initialTesters,
+  initialIdeas,
 }: {
   initialFeedback: FeedbackItem[]
   initialTesters: Tester[]
+  initialIdeas: IdeaItem[]
 }) {
   const router = useRouter()
   const [feedback, setFeedback] = useState(initialFeedback)
   const [testers, setTesters] = useState(initialTesters)
-  const [activeSection, setActiveSection] = useState<Section>('UX')
+  const [ideas, setIdeas] = useState(initialIdeas)
+  const [activeTab, setActiveTab] = useState<Tab>('UX')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showAddIdeaModal, setShowAddIdeaModal] = useState(false)
   const [showTestersModal, setShowTestersModal] = useState(false)
 
-  const sectionFeedback = feedback.filter(f => f.section === activeSection)
+  const isIdeasTab = activeTab === 'Ideas'
+  const sectionFeedback = !isIdeasTab ? feedback.filter(f => f.section === activeTab) : []
   const positive = sectionFeedback.filter(f => f.type === 'positive')
   const negative = sectionFeedback.filter(f => f.type === 'negative')
   const getTester = (id: string) => testers.find(t => t.id === id)
@@ -36,7 +43,7 @@ export default function Dashboard({
     })
     const item = await res.json()
     setFeedback(prev => [...prev, item])
-    if (data.section !== activeSection) setActiveSection(data.section)
+    if (data.section !== activeTab) setActiveTab(data.section)
   }
 
   async function removeFeedback(id: string) {
@@ -52,6 +59,31 @@ export default function Dashboard({
     })
     const updated = await res.json()
     setFeedback(prev => prev.map(f => (f.id === id ? updated : f)))
+  }
+
+  async function addIdea(data: { text: string; testerId: string }) {
+    const res = await fetch('/api/ideas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    const item = await res.json()
+    setIdeas(prev => [...prev, item])
+  }
+
+  async function removeIdea(id: string) {
+    await fetch(`/api/ideas?id=${id}`, { method: 'DELETE' })
+    setIdeas(prev => prev.filter(i => i.id !== id))
+  }
+
+  async function toggleDone(id: string) {
+    const res = await fetch('/api/ideas', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    const updated = await res.json()
+    setIdeas(prev => prev.map(i => (i.id === id ? updated : i)))
   }
 
   async function addTester(data: { name: string; org: string }) {
@@ -98,9 +130,9 @@ export default function Dashboard({
               return (
                 <button
                   key={section}
-                  onClick={() => setActiveSection(section)}
+                  onClick={() => setActiveTab(section)}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
-                    activeSection === section
+                    activeTab === section
                       ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
                       : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                   }`}
@@ -108,7 +140,7 @@ export default function Dashboard({
                   {section}
                   {count > 0 && (
                     <span className={`text-[10px] font-bold px-1.5 py-px rounded-full leading-none ${
-                      activeSection === section
+                      activeTab === section
                         ? 'bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400'
                         : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
                     }`}>
@@ -118,16 +150,52 @@ export default function Dashboard({
                 </button>
               )
             })}
+
+            {/* Divider */}
+            <div className="w-px bg-gray-200 dark:bg-gray-700 mx-0.5 self-stretch" />
+
+            {/* Ideas tab */}
+            <button
+              onClick={() => setActiveTab('Ideas')}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                activeTab === 'Ideas'
+                  ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+              }`}
+            >
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+              </svg>
+              Ideas
+              {ideas.length > 0 && (
+                <span className={`text-[10px] font-bold px-1.5 py-px rounded-full leading-none ${
+                  activeTab === 'Ideas'
+                    ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-400'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
+                }`}>
+                  {ideas.length}
+                </span>
+              )}
+            </button>
           </div>
 
           {/* Actions */}
           <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-[0_2px_8px_rgba(99,102,241,0.35)] hover:shadow-[0_4px_14px_rgba(99,102,241,0.45)]"
-            >
-              + Add Feedback
-            </button>
+            {isIdeasTab ? (
+              <button
+                onClick={() => setShowAddIdeaModal(true)}
+                className="bg-amber-500 hover:bg-amber-400 active:scale-95 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-[0_2px_8px_rgba(245,158,11,0.35)] hover:shadow-[0_4px_14px_rgba(245,158,11,0.45)]"
+              >
+                + Add Idea
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-[0_2px_8px_rgba(99,102,241,0.35)] hover:shadow-[0_4px_14px_rgba(99,102,241,0.45)]"
+              >
+                + Add Feedback
+              </button>
+            )}
             <button
               onClick={() => setShowTestersModal(true)}
               className="border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -153,83 +221,99 @@ export default function Dashboard({
 
       {/* Main content */}
       <main className="max-w-6xl mx-auto px-6 py-7">
-        <div className="grid grid-cols-2 gap-6">
+        {isIdeasTab ? (
+          <IdeasView
+            ideas={ideas}
+            testers={testers}
+            onDelete={removeIdea}
+            onToggleDone={toggleDone}
+          />
+        ) : (
+          <div className="grid grid-cols-2 gap-6">
 
-          {/* Positive column */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                <svg className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
-              </div>
-              <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Positive</h2>
-              <span className="ml-auto text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full">
-                {positive.length}
-              </span>
-            </div>
-            <div className="space-y-2.5">
-              {positive.length === 0 ? (
-                <EmptyState type="positive" />
-              ) : (
-                positive.map((item, index) => (
-                  <FeedbackCard
-                    key={item.id}
-                    item={item}
-                    tester={getTester(item.testerId)}
-                    index={index}
-                    onDelete={() => removeFeedback(item.id)}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Negative column */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
-                <svg className="w-2.5 h-2.5 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                </svg>
-              </div>
-              <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Negative</h2>
-              <span className="ml-auto text-[11px] font-semibold bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-full">
-                {negative.length}
-              </span>
-              {negative.some(f => f.fixed) && (
-                <span className="text-[11px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 px-2 py-0.5 rounded-full">
-                  {negative.filter(f => f.fixed).length} fixed
+            {/* Positive column */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                  <svg className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                  </svg>
+                </div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Positive</h2>
+                <span className="ml-auto text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full">
+                  {positive.length}
                 </span>
-              )}
+              </div>
+              <div className="space-y-2.5">
+                {positive.length === 0 ? (
+                  <EmptyState type="positive" />
+                ) : (
+                  positive.map((item, index) => (
+                    <FeedbackCard
+                      key={item.id}
+                      item={item}
+                      tester={getTester(item.testerId)}
+                      index={index}
+                      onDelete={() => removeFeedback(item.id)}
+                    />
+                  ))
+                )}
+              </div>
             </div>
-            <div className="space-y-2.5">
-              {negative.length === 0 ? (
-                <EmptyState type="negative" />
-              ) : (
-                negative.map((item, index) => (
-                  <FeedbackCard
-                    key={item.id}
-                    item={item}
-                    tester={getTester(item.testerId)}
-                    index={index}
-                    onDelete={() => removeFeedback(item.id)}
-                    onToggleFixed={() => toggleFixed(item.id)}
-                  />
-                ))
-              )}
-            </div>
-          </div>
 
-        </div>
+            {/* Negative column */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+                  <svg className="w-2.5 h-2.5 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Negative</h2>
+                <span className="ml-auto text-[11px] font-semibold bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded-full">
+                  {negative.length}
+                </span>
+                {negative.some(f => f.fixed) && (
+                  <span className="text-[11px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 px-2 py-0.5 rounded-full">
+                    {negative.filter(f => f.fixed).length} fixed
+                  </span>
+                )}
+              </div>
+              <div className="space-y-2.5">
+                {negative.length === 0 ? (
+                  <EmptyState type="negative" />
+                ) : (
+                  negative.map((item, index) => (
+                    <FeedbackCard
+                      key={item.id}
+                      item={item}
+                      tester={getTester(item.testerId)}
+                      index={index}
+                      onDelete={() => removeFeedback(item.id)}
+                      onToggleFixed={() => toggleFixed(item.id)}
+                    />
+                  ))
+                )}
+              </div>
+            </div>
+
+          </div>
+        )}
       </main>
 
       {showAddModal && (
         <AddFeedbackModal
           testers={testers}
-          activeSection={activeSection}
+          activeSection={isIdeasTab ? 'UX' : activeTab as Section}
           onClose={() => setShowAddModal(false)}
           onAdd={addFeedback}
+        />
+      )}
+      {showAddIdeaModal && (
+        <AddIdeaModal
+          testers={testers}
+          onClose={() => setShowAddIdeaModal(false)}
+          onAdd={addIdea}
         />
       )}
       {showTestersModal && (
@@ -240,6 +324,173 @@ export default function Dashboard({
           onRemove={removeTester}
         />
       )}
+    </div>
+  )
+}
+
+function IdeasView({
+  ideas,
+  testers,
+  onDelete,
+  onToggleDone,
+}: {
+  ideas: IdeaItem[]
+  testers: Tester[]
+  onDelete: (id: string) => void
+  onToggleDone: (id: string) => void
+}) {
+  const getTester = (id: string) => testers.find(t => t.id === id)
+  const open = ideas.filter(i => !i.done)
+  const done = ideas.filter(i => i.done)
+
+  if (ideas.length === 0) {
+    return (
+      <div className="max-w-lg mx-auto mt-8">
+        <div className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl p-12 text-center animate-fade-in">
+          <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/20 rounded-xl mx-auto mb-3 flex items-center justify-center">
+            <svg className="w-5 h-5 text-amber-400 dark:text-amber-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+            </svg>
+          </div>
+          <p className="text-sm font-medium text-gray-400 dark:text-gray-600">No ideas yet</p>
+          <p className="text-xs text-gray-400 dark:text-gray-600 mt-1">Hit <strong className="text-gray-500 dark:text-gray-500">+ Add Idea</strong> to log the first one.</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-7">
+      {open.length > 0 && (
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-5 h-5 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <svg className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+              </svg>
+            </div>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Open</h2>
+            <span className="ml-auto text-[11px] font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full">
+              {open.length}
+            </span>
+          </div>
+          <div className="space-y-2.5">
+            {open.map((idea, index) => (
+              <IdeaCard
+                key={idea.id}
+                idea={idea}
+                tester={getTester(idea.testerId)}
+                index={index}
+                onDelete={() => onDelete(idea.id)}
+                onToggleDone={() => onToggleDone(idea.id)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {done.length > 0 && (
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <svg className="w-2.5 h-2.5 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+            </div>
+            <h2 className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">Implemented</h2>
+            <span className="ml-auto text-[11px] font-semibold bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 px-2 py-0.5 rounded-full">
+              {done.length}
+            </span>
+          </div>
+          <div className="space-y-2.5">
+            {done.map((idea, index) => (
+              <IdeaCard
+                key={idea.id}
+                idea={idea}
+                tester={getTester(idea.testerId)}
+                index={index}
+                onDelete={() => onDelete(idea.id)}
+                onToggleDone={() => onToggleDone(idea.id)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}
+
+function IdeaCard({
+  idea,
+  tester,
+  index,
+  onDelete,
+  onToggleDone,
+}: {
+  idea: IdeaItem
+  tester: Tester | undefined
+  index: number
+  onDelete: () => void
+  onToggleDone: () => void
+}) {
+  const initial = (tester?.name ?? '?')[0].toUpperCase()
+
+  const date = new Date(idea.timestamp).toLocaleString('sv-SE', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  return (
+    <div
+      className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden shadow-card hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 animate-slide-up"
+      style={{ animationDelay: `${index * 60}ms` }}
+    >
+      <div className={`h-[3px] ${idea.done ? 'bg-gray-200 dark:bg-gray-700' : 'bg-amber-400 dark:bg-amber-500'}`} />
+
+      <div className="p-4">
+        <p className={`text-sm leading-relaxed mb-3.5 ${
+          idea.done
+            ? 'line-through text-gray-300 dark:text-gray-600'
+            : 'text-gray-700 dark:text-gray-200'
+        }`}>
+          {idea.text}
+        </p>
+
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+            {initial}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-medium text-gray-600 dark:text-gray-400 truncate leading-none">
+              {tester?.name ?? 'Unknown'}
+              {tester?.org && <span className="text-gray-400 dark:text-gray-600"> · {tester.org}</span>}
+            </p>
+            <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5">{date}</p>
+          </div>
+
+          <div className="flex gap-1 shrink-0">
+            <button
+              onClick={onToggleDone}
+              className={`text-[11px] px-2.5 py-1 rounded-lg font-semibold transition-colors ${
+                idea.done
+                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30'
+              }`}
+            >
+              {idea.done ? 'Reopen' : '✓ Done'}
+            </button>
+            <button
+              onClick={onDelete}
+              className="text-[11px] px-2.5 py-1 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:text-rose-500 dark:hover:text-rose-400 font-semibold transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -4,17 +4,45 @@
       "id": "5c5b37f5-2d8a-46d7-88ca-010edc57e343",
       "name": "Nicke",
       "org": "Hägerstensåsens skola"
+    },
+    {
+      "id": "2412d8cf-8f2e-427b-92ae-3c6868d52865",
+      "name": "Johnny",
+      "org": "Hägerstensåsens skola"
+    },
+    {
+      "id": "cd87ff54-4ab9-49e7-a04b-77f9b6f7c759",
+      "name": "Josefin",
+      "org": "Hägerstensåsens skola"
+    }
+  ],
+  "ideas": [
+    {
+      "id": "faef65e6-c894-4cdb-99e7-69e2d98de02d",
+      "text": "Att använda sig av baklängesplanering. Någonting som föredras att arbeta efter",
+      "testerId": "2412d8cf-8f2e-427b-92ae-3c6868d52865",
+      "timestamp": "2026-05-18T19:45:14.740Z",
+      "done": false
     }
   ],
   "feedback": [
     {
-      "id": "8b26bd76-d456-47d0-90e2-a067b3c73043",
-      "section": "Content",
-      "type": "negative",
-      "text": "För mycket plotter på sidan",
+      "id": "5a83c830-cf9d-4b61-9e43-f8086dcdb40c",
+      "section": "UX",
+      "type": "positive",
+      "text": "Allting fungerar bra",
       "testerId": "5c5b37f5-2d8a-46d7-88ca-010edc57e343",
-      "timestamp": "2026-05-16T10:14:03.699Z",
-      "fixed": true
+      "timestamp": "2026-05-16T12:01:37.226Z",
+      "fixed": false
+    },
+    {
+      "id": "ca1ddc15-6ecc-4cad-813c-63cd8f7473cc",
+      "section": "UX",
+      "type": "negative",
+      "text": "Allt är sämst",
+      "testerId": "5c5b37f5-2d8a-46d7-88ca-010edc57e343",
+      "timestamp": "2026-05-16T12:01:52.329Z",
+      "fixed": false
     }
   ]
 }
